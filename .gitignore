@@ -1,0 +1,5 @@
+.idea
+*.iml
+FoodOrderingApp-api/target
+FoodOrderingApp-service/target
+.DS_Store
