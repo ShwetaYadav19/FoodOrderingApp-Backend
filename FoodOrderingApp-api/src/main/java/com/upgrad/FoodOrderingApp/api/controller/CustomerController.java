@@ -8,6 +8,8 @@ import com.upgrad.FoodOrderingApp.api.model.SignupCustomerRequest;
 import com.upgrad.FoodOrderingApp.api.model.SignupCustomerResponse;
 import com.upgrad.FoodOrderingApp.api.model.UpdateCustomerRequest;
 import com.upgrad.FoodOrderingApp.api.model.UpdateCustomerResponse;
+import com.upgrad.FoodOrderingApp.api.model.UpdatePasswordRequest;
+import com.upgrad.FoodOrderingApp.api.model.UpdatePasswordResponse;
 import com.upgrad.FoodOrderingApp.service.businness.CommonCustomerService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerAuthenticationService;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
@@ -87,8 +89,9 @@ public class CustomerController {
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/customer/logout", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<LogoutResponse> logoutCustomer(@RequestHeader("authorization") final String accessToken)
+    public ResponseEntity<LogoutResponse> logoutCustomer(@RequestHeader("authorization") final String bearerToken)
             throws AuthorizationFailedException {
+        String accessToken = bearerToken.split("Bearer ")[1];
         CustomerEntity customerEntity = customerAuthenticationService.logout(accessToken);
         LogoutResponse logoutResponse =
                 new LogoutResponse().id(customerEntity.getUuid()).message("LOGGED OUT SUCCESSFULLY");
@@ -98,7 +101,7 @@ public class CustomerController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/customer", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<UpdateCustomerResponse> logoutCustomer(@RequestHeader("authorization") final String bearerToken,
+    public ResponseEntity<UpdateCustomerResponse> updateCustomer(@RequestHeader("authorization") final String bearerToken,
                                                                  final UpdateCustomerRequest updateCustomerRequest)
             throws UpdateCustomerException, AuthorizationFailedException {
 
@@ -113,6 +116,30 @@ public class CustomerController {
                 .firstName(updatedCustomerEntity.getFirstName())
                 .lastName(updatedCustomerEntity.getLastName());
         return new ResponseEntity<UpdateCustomerResponse>(updateCustomerResponse, HttpStatus.OK);
+
+    }
+
+
+
+    @RequestMapping(method = RequestMethod.POST, path = "/customer/password", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UpdatePasswordResponse> updatePassword(@RequestHeader("authorization") final String bearerToken,
+                                                                 final UpdatePasswordRequest updatePasswordRequest)
+            throws UpdateCustomerException, AuthorizationFailedException {
+
+        String accessToken = bearerToken.split("Bearer ")[1];
+        if(updatePasswordRequest.getOldPassword().isEmpty() || updatePasswordRequest.getNewPassword().isEmpty()){
+            throw new UpdateCustomerException("UCR-003","No field should be empty");
+        }
+
+        CustomerEntity updatedCustomerEntity = commonCustomerService.updatePassword(accessToken,updatePasswordRequest.getOldPassword(),
+                updatePasswordRequest.getNewPassword());
+
+
+        UpdatePasswordResponse updatePasswordResponse =
+                new UpdatePasswordResponse().id(updatedCustomerEntity.getUuid()).
+                        status("CUSTOMER PASSWORD UPDATED SUCCESSFULLY");
+        return new ResponseEntity<UpdatePasswordResponse>(updatePasswordResponse, HttpStatus.OK);
 
     }
 

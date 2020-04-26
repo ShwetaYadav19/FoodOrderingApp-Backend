@@ -34,7 +34,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(AuthorizationFailedException.class)
     public ResponseEntity<ErrorResponse> authorizationFailedException(
-            AuthenticationFailedException exception, WebRequest request) {
+            AuthorizationFailedException exception, WebRequest request) {
         return new ResponseEntity<ErrorResponse>(
                 new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
                 HttpStatus.UNAUTHORIZED);

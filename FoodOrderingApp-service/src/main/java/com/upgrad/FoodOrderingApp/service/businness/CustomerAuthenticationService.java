@@ -132,7 +132,7 @@ public class CustomerAuthenticationService {
     }
 
 
-    private boolean isPasswordWeak(final String password) {
+    public boolean isPasswordWeak(final String password) {
         return false;
     }
 

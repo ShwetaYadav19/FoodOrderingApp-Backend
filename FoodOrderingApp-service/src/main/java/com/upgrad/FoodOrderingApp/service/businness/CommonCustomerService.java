@@ -21,6 +21,12 @@ public class CommonCustomerService {
     @Autowired
     private CustomerAuthDao customerAuthDao;
 
+    @Autowired
+    private CustomerAuthenticationService customerAuthenticationService;
+
+    @Autowired
+    private PasswordCryptographyProvider passwordCryptographyProvider;
+
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerEntity getCustomerByContactNumber(final String contactNumber) {
         CustomerEntity customerEntity = customerDao.getCustomerByContactNumber(contactNumber);
@@ -60,5 +66,43 @@ public class CommonCustomerService {
         customerEntity.setLastName(updatedLastName);
         customerDao.updateCustomerEntity(customerEntity);
         return customerDao.getCustomerByUuid(customerEntity.getUuid());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public CustomerEntity updatePassword(String accessToken, String oldPassword, String newPassword) throws AuthorizationFailedException, UpdateCustomerException {
+        CustomerAuthEntity customerAuthEntity = customerAuthDao.getCustomerAuthByToken(accessToken);
+        if(customerAuthEntity==null){
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in");
+        }
+
+        if(customerAuthEntity.getLogoutAt()!=null){
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        }
+
+        if(customerAuthEntity.getExpiresAt().isBefore(ZonedDateTime.now())){
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
+        }
+
+
+        if(customerAuthenticationService.isPasswordWeak(newPassword)){
+            throw new UpdateCustomerException("UCR-001","Weak password!");
+        }
+        final String encryptedOldPassword =
+                passwordCryptographyProvider.encrypt(oldPassword, customerAuthEntity.getCustomerEntity().getSalt());
+
+        if(!customerAuthEntity.getCustomerEntity().getPassword().equals(encryptedOldPassword)){
+            throw new UpdateCustomerException("UCR-004","Incorrect old password!");
+        }
+        CustomerEntity customerEntity = customerAuthEntity.getCustomerEntity();
+        String[] encryptedNewPassword = passwordCryptographyProvider.encrypt(newPassword);
+
+        customerEntity.setSalt(encryptedNewPassword[0]);
+        customerEntity.setPassword(encryptedNewPassword[1]);
+        customerDao.updateCustomerEntity(customerEntity);
+
+        customerAuthEntity.setLogoutAt(ZonedDateTime.now());
+        customerAuthDao.updateCustomerAuth(customerAuthEntity);
+        return customerDao.getCustomerByUuid(customerEntity.getUuid());
+
     }
 }
