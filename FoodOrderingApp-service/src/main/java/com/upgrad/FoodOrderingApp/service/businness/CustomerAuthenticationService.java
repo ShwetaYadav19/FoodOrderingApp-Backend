@@ -74,7 +74,7 @@ public class CustomerAuthenticationService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerAuthEntity login(final String contactNumber, final String password) throws AuthenticationFailedException {
-        CustomerEntity customerEntity = customerDao.getCustomerByContactNumer(contactNumber);
+        CustomerEntity customerEntity = customerDao.getCustomerByContactNumber(contactNumber);
 
         if(contactNumber.isEmpty() || password.isEmpty()){
             throw new AuthenticationFailedException("ATH-003","Incorrect format of decoded customer name and password");
@@ -112,7 +112,7 @@ public class CustomerAuthenticationService {
 
 
     private boolean isContactNumberAlreadyExists(final String contactNumber) {
-        return customerDao.getCustomerByContactNumer(contactNumber)!= null;
+        return customerDao.getCustomerByContactNumber(contactNumber)!= null;
 
     }
 

@@ -24,7 +24,7 @@ public class CustomerDao {
     }
 
 
-    public CustomerEntity getCustomerByContactNumer(final String contactNumber) {
+    public CustomerEntity getCustomerByContactNumber(final String contactNumber) {
         try {
             return entityManager
                     .createNamedQuery("customerByContactNumber", CustomerEntity.class)

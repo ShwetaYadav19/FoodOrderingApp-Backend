@@ -67,6 +67,10 @@ public class CustomerController {
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setId(customerAuthEntity.getCustomerEntity().getUuid());
+        loginResponse.setFirstName(customerAuthEntity.getCustomerEntity().getFirstName());
+        loginResponse.setLastName(customerAuthEntity.getCustomerEntity().getLastName());
+        loginResponse.setEmailAddress(customerAuthEntity.getCustomerEntity().getEmail());
+        loginResponse.setContactNumber(customerAuthEntity.getCustomerEntity().getContactNumber());
         loginResponse.setMessage("LOGGED IN SUCCESSFULLY");
 
         return new ResponseEntity<LoginResponse>(loginResponse, headers, HttpStatus.OK);
