@@ -10,6 +10,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>FoodOrderingApp-api</artifactId>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- The main class to start -->
+        <start-class>com.upgrad.FoodOrderingApp.api.FoodOrderingAppApiApplication</start-class>
+    </properties>
 
     <dependencies>
         <dependency>
