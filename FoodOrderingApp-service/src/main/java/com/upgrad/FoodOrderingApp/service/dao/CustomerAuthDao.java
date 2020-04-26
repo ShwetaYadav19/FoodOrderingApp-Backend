@@ -1,6 +1,7 @@
 package com.upgrad.FoodOrderingApp.service.dao;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
@@ -18,7 +19,19 @@ public class CustomerAuthDao {
         return customerAuthEntity;
     }
 
-    public void updateCustomerEntity(final CustomerEntity updatedCustomerEntity) {
-        entityManager.merge(updatedCustomerEntity);
+    public CustomerAuthEntity getCustomerAuthByToken(String accessToken) {
+        try {
+            return entityManager
+                    .createNamedQuery("customerAuthByAccessToken", CustomerAuthEntity.class)
+                    .setParameter("accessToken", accessToken)
+                    .getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    public void updateCustomerAuth(final CustomerAuthEntity updatedCustomerAuthEntity) {
+        entityManager.merge(updatedCustomerAuthEntity);
+
     }
 }
