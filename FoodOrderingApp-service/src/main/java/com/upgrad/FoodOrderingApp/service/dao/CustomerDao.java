@@ -39,4 +39,15 @@ public class CustomerDao {
     public void updateCustomerEntity(final CustomerEntity updatedCustomerEntity) {
         entityManager.merge(updatedCustomerEntity);
     }
+
+    public CustomerEntity getCustomerByUuid(String uuid) {
+        try {
+            return entityManager
+                    .createNamedQuery("customerByUuid", CustomerEntity.class)
+                    .setParameter("uuid", uuid)
+                    .getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
 }

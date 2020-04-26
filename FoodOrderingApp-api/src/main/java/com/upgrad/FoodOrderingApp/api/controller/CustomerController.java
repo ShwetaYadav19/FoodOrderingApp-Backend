@@ -6,12 +6,16 @@ import com.upgrad.FoodOrderingApp.api.model.LoginResponse;
 import com.upgrad.FoodOrderingApp.api.model.LogoutResponse;
 import com.upgrad.FoodOrderingApp.api.model.SignupCustomerRequest;
 import com.upgrad.FoodOrderingApp.api.model.SignupCustomerResponse;
+import com.upgrad.FoodOrderingApp.api.model.UpdateCustomerRequest;
+import com.upgrad.FoodOrderingApp.api.model.UpdateCustomerResponse;
+import com.upgrad.FoodOrderingApp.service.businness.CommonCustomerService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerAuthenticationService;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,6 +35,9 @@ public class CustomerController {
 
     @Autowired
     private CustomerAuthenticationService customerAuthenticationService;
+
+    @Autowired
+    private CommonCustomerService commonCustomerService;
 
     @RequestMapping(method = RequestMethod.POST, path = "/customer/signup", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -86,6 +93,26 @@ public class CustomerController {
         LogoutResponse logoutResponse =
                 new LogoutResponse().id(customerEntity.getUuid()).message("LOGGED OUT SUCCESSFULLY");
         return new ResponseEntity<LogoutResponse>(logoutResponse, HttpStatus.OK);
+
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/customer", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UpdateCustomerResponse> logoutCustomer(@RequestHeader("authorization") final String bearerToken,
+                                                                 final UpdateCustomerRequest updateCustomerRequest)
+            throws UpdateCustomerException, AuthorizationFailedException {
+
+        String accessToken = bearerToken.split("Bearer ")[1];
+
+        CustomerEntity updatedCustomerEntity = commonCustomerService.updateCustomer(accessToken,updateCustomerRequest.getFirstName(),
+                updateCustomerRequest.getLastName());
+
+        UpdateCustomerResponse updateCustomerResponse =
+                new UpdateCustomerResponse().id(updatedCustomerEntity.getUuid()).
+                        status("CUSTOMER DETAILS UPDATED SUCCESSFULLY")
+                .firstName(updatedCustomerEntity.getFirstName())
+                .lastName(updatedCustomerEntity.getLastName());
+        return new ResponseEntity<UpdateCustomerResponse>(updateCustomerResponse, HttpStatus.OK);
 
     }
 

@@ -16,6 +16,10 @@ import java.io.Serializable;
         @NamedQuery(
                 name = "customerByContactNumber",
                 query = "select c from CustomerEntity c where c.contactNumber =:contactNumber"),
+        @NamedQuery(
+                name = "customerByUuid",
+                query = "select c from CustomerEntity c where c.uuid =:uuid"
+        )
 
 })
 public class CustomerEntity implements Serializable {
